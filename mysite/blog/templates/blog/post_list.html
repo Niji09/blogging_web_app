@@ -1,0 +1,31 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+	<div class="centerstage">
+		<div class="row">
+			{% for post in post_list %}
+				<div class="col-lg-6 col-md-6 col-sm-12 post">
+					<div class="card bg-light mb-3" style="max-width: 30rem;">
+						<div class="card-body ">
+
+							<h3 class="card-title">
+								<a href="{% url 'blog:post_detail' pk=post.pk %}" class="text-dark">
+									{{ post.title }}
+								</a>
+							</h3>
+							<hr>
+							<div class='date'>
+								<h6>Auther : {{ post.auther }}</h6>
+								<p>Published on: {{ post.published_date|date:'D M Y'}}</p>
+							</div>
+							<a href="{% url 'blog:post_detail' pk=post.pk %}">
+								Comment: {{ post.approve_comments.count }}
+							</a>
+							
+						</div>
+					</div>
+				</div>	
+			{% endfor %}		
+		</div>
+	</div>
+{% endblock %}

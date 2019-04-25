@@ -1,0 +1,129 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+	<div class='card bg-light'>
+		<div class="card-body">
+			
+		
+		
+	<h1 class="posttitle loader">{{ post.title }}</h1>
+	<h5>Auther: {{post.auther}}</h5>
+	{% if post.published_date %}
+		<div class='date postdate'>
+			<h6>Published on: {{ post.published_date }} </h6>
+		</div>
+	{% endif %}
+	<hr>
+		<!-- post text -->
+		<p class="postcontent">{{ post.text|safe|linebreaksbr }}</p>
+
+	{% if user.is_authenticated and post.auther == user %}
+
+		<!---unpublish button -->
+		{% if post.published_date %}
+			<a href="{% url 'blog:post_unpublish' pk=post.pk %}" class="btn btn-warning">Unpublish</a>
+		{% else %}
+		<!-- publish post -->
+			<a href="{% url 'blog:post_publish' pk=post.pk %}" class="btn btn-primary">Publish</a>
+		{% endif %}
+
+		<!-- edit post -->
+		<a href="{% url 'blog:post_edit' pk=post.pk %}" class="btn btn-primary">
+			Edit
+		</a>
+		<!-- remove post 
+		<a href="{% url 'blog:post_remove' pk=post.pk %}" class="btn btn-danger">
+				Remove
+		</a>-->
+		<!-- model for delete blog -->
+		<!-- Button trigger modal -->
+		<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalCenter">
+  			Remove
+		</button>
+
+		<!-- Modal -->
+			<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLongTitle">Delete Confirmation</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      	<h3>Are you sure want to delete {{ object }}?</h3>
+			      </div>
+			    <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			       	<form method="POST" action="{% url 'blog:post_remove' pk=post.pk %}">
+						{% csrf_token %}
+						<input type="submit" value="Confirm" class="btn btn-danger">
+					</form>
+			    </div>
+			    </div>
+			  </div>
+			</div>
+
+	</div>
+	</div>
+
+		<hr>
+	{% else %}
+		</div>
+		</div>
+
+		<hr>
+	{% endif %}
+
+	<!-- post-comment-->
+		<a href="{% url 'blog:post_comment' pk=post.pk %}" class="btn btn-default btn-comment">
+			Add Comment
+		</a>
+
+	<div class="container">
+		<br>
+		{% for comment in post.comment.all %}
+				<div class="row">
+					<div>
+						{% if  user.is_authenticated or comment.approve_comment %}
+						{{ comment.create_date }}
+
+						{% if not comment.approve_comment and post.auther == user %}
+
+							<!-- remove comment  -->
+							<a href="{% url 'blog:comment_delete' pk=comment.pk %}">
+								<img src="{% static '/images/delete.png' %}" alt='delete.png'>
+							<a>
+							<!-- approve comment  -->
+							<a href="{% url 'blog:comment_approve' pk=comment.pk %}" alt='ok.png'>
+								<img src="{% static '/images/ok.png' %}">
+							</a>
+						{% endif %}
+						
+						<p>{{ comment.text|safe|linebreaks }}</p>
+						
+						<h6>Posted by: {{ comment.viewer }}</h6>
+					</div>
+					<div >
+						{% if comment.approve_comment and post.auther == user %}
+							<a href="{% url 'blog:comment_delete' pk=comment.pk %}" alt='ok.png'>
+								<img src="{% static '/images/delete.png' %}">
+							</a>
+						{% endif %}
+					</div>
+				</div>
+				<hr>
+				
+					
+				
+				{% endif %}
+			
+		{% empty %}
+			<p>No Comments!</p>
+		
+		{% endfor %}
+	</div>
+
+{% endblock %}
